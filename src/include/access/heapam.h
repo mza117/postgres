@@ -22,6 +22,7 @@
 #include "storage/lock.h"
 #include "utils/relcache.h"
 #include "utils/snapshot.h"
+#include "vslot_tmp.h"
 
 
 /* "options" flag bits for heap_insert */
@@ -127,6 +128,7 @@ extern void heap_rescan_set_params(HeapScanDesc scan, ScanKey key,
 					 bool allow_strat, bool allow_sync, bool allow_pagemode);
 extern void heap_endscan(HeapScanDesc scan);
 extern HeapTuple heap_getnext(HeapScanDesc scan, ScanDirection direction);
+extern bool heap_getnextvslot(HeapScanDesc sscan, VectorTupleSlot *vslot);
 
 extern Size heap_parallelscan_estimate(Snapshot snapshot);
 extern void heap_parallelscan_initialize(ParallelHeapScanDesc target,

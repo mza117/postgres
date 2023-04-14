@@ -19,6 +19,7 @@
 #include "access/htup_details.h"
 #include "access/itup.h"
 #include "access/tupdesc.h"
+#include "vslot_tmp.h"
 
 /*
  * Shared state for parallel heap scan.
@@ -74,6 +75,7 @@ typedef struct HeapScanDescData
 	int			rs_cindex;		/* current tuple's index in vistuples */
 	int			rs_ntuples;		/* number of visible tuples on page */
 	OffsetNumber rs_vistuples[MaxHeapTuplesPerPage];	/* their offsets */
+    VectorTupleSlot *vectorTupleSlot;
 }	HeapScanDescData;
 
 /*
