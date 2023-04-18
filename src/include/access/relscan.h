@@ -74,6 +74,8 @@ typedef struct HeapScanDescData
 	int			rs_cindex;		/* current tuple's index in vistuples */
 	int			rs_ntuples;		/* number of visible tuples on page */
 	OffsetNumber rs_vistuples[MaxHeapTuplesPerPage];	/* their offsets */
+    void         *insert_buffer;
+//    void         *get_buffer;
 }	HeapScanDescData;
 
 /*

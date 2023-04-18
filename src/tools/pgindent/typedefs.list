@@ -557,6 +557,10 @@ ExecutorEnd_hook_type
 ExecutorFinish_hook_type
 ExecutorRun_hook_type
 ExecutorStart_hook_type
+heap_scan_init_hook_type
+heap_insert_hook_type
+heap_get_next_hook_type
+heap_end_scan_hook_type
 ExpandedArrayHeader
 ExpandedObjectHeader
 ExpandedObjectMethods

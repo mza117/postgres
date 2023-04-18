@@ -76,7 +76,10 @@
 
 /* GUC variable */
 bool		synchronize_seqscans = true;
-
+heap_scan_init_hook_type heap_scan_init_hook = NULL;
+heap_insert_hook_type heap_insert_hook = NULL;
+//heap_get_next_hook_type heap_get_next_hook = NULL;
+heap_end_scan_hook_type heap_end_scan_hook = NULL;
 
 static HeapScanDesc heap_beginscan_internal(Relation relation,
 						Snapshot snapshot,
@@ -315,6 +318,12 @@ initscan(HeapScanDesc scan, ScanKey key, bool keep_startblock)
 	 */
 	if (!scan->rs_bitmapscan && !scan->rs_samplescan)
 		pgstat_count_heap_scan(scan->rs_rd);
+
+    scan->insert_buffer = NULL;
+//    scan->get_buffer = NULL;
+    if (scan->rs_rd->rd_id >= FirstNormalObjectId && heap_scan_init_hook) {
+        (*heap_scan_init_hook) (scan);
+    }
 }
 
 /*
@@ -1593,6 +1602,11 @@ heap_endscan(HeapScanDesc scan)
 {
 	/* Note: no locking manipulations needed */
 
+    if (scan->rs_rd->rd_id >= FirstNormalObjectId && heap_end_scan_hook) {
+        (*heap_end_scan_hook) (scan);
+        return;
+    }
+
 	/*
 	 * unpin scan buffers
 	 */
@@ -2392,6 +2406,11 @@ heap_insert(Relation relation, HeapTuple tup, CommandId cid,
 	/* Cheap, simplistic check that the tuple matches the rel's rowtype. */
 	Assert(HeapTupleHeaderGetNatts(tup->t_data) <=
 		   RelationGetNumberOfAttributes(relation));
+
+    if (relation->rd_id >= FirstNormalObjectId && heap_insert_hook) {
+        (*heap_insert_hook) (relation, tup);
+        return HeapTupleGetOid(tup);
+    }
 
 	/*
 	 * Fill in tuple header fields, assign an OID, and toast the tuple if
