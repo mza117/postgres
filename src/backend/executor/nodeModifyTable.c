@@ -2010,6 +2010,10 @@ ExecEndModifyTable(ModifyTableState *node)
 			resultRelInfo->ri_FdwRoutine->EndForeignModify != NULL)
 			resultRelInfo->ri_FdwRoutine->EndForeignModify(node->ps.state,
 														   resultRelInfo);
+        if (resultRelInfo->ri_RelationDesc->rd_id >= FirstNormalObjectId)
+        {
+            heap_insert_finish(resultRelInfo->ri_RelationDesc);
+        }
 	}
 
 	/*
