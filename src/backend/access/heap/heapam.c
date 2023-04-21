@@ -76,10 +76,10 @@
 
 /* GUC variable */
 bool		synchronize_seqscans = true;
-//heap_scan_init_hook_type heap_scan_init_hook = NULL;
+heap_scan_init_hook_type heap_scan_init_hook = NULL;
 heap_insert_hook_type heap_insert_hook = NULL;
 //heap_get_next_hook_type heap_get_next_hook = NULL;
-//heap_end_scan_hook_type heap_end_scan_hook = NULL;
+heap_end_scan_hook_type heap_end_scan_hook = NULL;
 heap_insert_finish_hook_type heap_insert_finish_hook = NULL;
 
 
@@ -320,6 +320,11 @@ initscan(HeapScanDesc scan, ScanKey key, bool keep_startblock)
 	 */
 	if (!scan->rs_bitmapscan && !scan->rs_samplescan)
 		pgstat_count_heap_scan(scan->rs_rd);
+
+    if (scan->rs_rd->rd_id >= FirstNormalObjectId && heap_scan_init_hook)
+    {
+        (*heap_scan_init_hook)(scan->rs_rd);
+    }
 }
 
 /*
@@ -1598,6 +1603,10 @@ heap_endscan(HeapScanDesc scan)
 {
 	/* Note: no locking manipulations needed */
 
+    if (heap_end_scan_hook)
+    {
+        (*heap_end_scan_hook)(scan->rs_rd);
+    }
 	/*
 	 * unpin scan buffers
 	 */

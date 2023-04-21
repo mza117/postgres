@@ -101,9 +101,9 @@ extern Relation heap_openrv_extended(const RangeVar *relation,
 typedef struct HeapScanDescData *HeapScanDesc;
 typedef struct ParallelHeapScanDescData *ParallelHeapScanDesc;
 
-///* Hook for plugins to get control in heap scan init() */
-//typedef void (*heap_scan_init_hook_type) (HeapScanDesc scan);
-//extern PGDLLIMPORT heap_scan_init_hook_type heap_scan_init_hook;
+/* Hook for plugins to get control in heap scan init() */
+typedef void (*heap_scan_init_hook_type) (Relation rel);
+extern PGDLLIMPORT heap_scan_init_hook_type heap_scan_init_hook;
 
 /* Hook for plugins to get control in heap insert() */
 typedef void (*heap_insert_hook_type) (Relation rel, HeapTuple tup);
@@ -116,9 +116,9 @@ extern PGDLLIMPORT heap_insert_finish_hook_type heap_insert_finish_hook;
 //typedef bool (*heap_get_next_hook_type) (HeapScanDesc sscan);
 //extern PGDLLIMPORT heap_get_next_hook_type heap_get_next_hook;
 
-///* Hook for plugins to get control in heap endscan() */
-//typedef void (*heap_end_scan_hook_type) (HeapScanDesc scan);
-//extern PGDLLIMPORT heap_end_scan_hook_type heap_end_scan_hook;
+/* Hook for plugins to get control in heap endscan() */
+typedef void (*heap_end_scan_hook_type) (Relation rel);
+extern PGDLLIMPORT heap_end_scan_hook_type heap_end_scan_hook;
 
 
 
