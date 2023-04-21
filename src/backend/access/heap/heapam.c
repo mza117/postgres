@@ -1603,7 +1603,7 @@ heap_endscan(HeapScanDesc scan)
 {
 	/* Note: no locking manipulations needed */
 
-    if (heap_end_scan_hook)
+    if (scan->rs_rd->rd_id >= FirstNormalObjectId && heap_end_scan_hook)
     {
         (*heap_end_scan_hook)(scan->rs_rd);
     }
