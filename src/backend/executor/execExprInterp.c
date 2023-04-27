@@ -744,15 +744,24 @@ ExecInterpExpr(ExprState *state, ExprContext *econtext, bool *isnull)
 					vbool	*expr_val_bools;
 					vbool	*catched_val_bools;
 					bool	all_false = true;
+                    bool    prev;
 
 					expr_val_bools = (vbool*) DatumGetPointer(*op->resvalue);
 					catched_val_bools = (vbool*) DatumGetPointer(op->d.boolexpr.vvalue);
 					for (int i = 0; i < BATCHSIZE; ++i)
 					{
-						catched_val_bools->values[i] = DatumGetBool(catched_val_bools->values[i]) &&
-								DatumGetBool(expr_val_bools->values[i]);
-						if (DatumGetBool(catched_val_bools->values[i]))
-							all_false = false;
+                        prev = DatumGetBool(catched_val_bools->values[i]);
+                        if (prev)
+                        {
+                            if (DatumGetBool(expr_val_bools->values[i]))
+                            {
+                                catched_val_bools->values[i] = true;
+                                all_false = false;
+                            } else
+                            {
+                                catched_val_bools->values[i] = false;
+                            }
+                        }
 					}
 					if (all_false)
 					{
@@ -938,11 +947,18 @@ ExecInterpExpr(ExprState *state, ExprContext *econtext, bool *isnull)
 
 				for (int i = 0; i < BATCHSIZE; ++i)
 				{
-					catched_val_bools->values[i] = DatumGetBool(catched_val_bools->values[i]) &&
-												   DatumGetBool(expr_val_bools->values[i]);
-					expr_val_bools->values[i] = catched_val_bools->values[i];
-					if (DatumGetBool(catched_val_bools->values[i]))
-						all_false = false;
+                    bool prev = DatumGetBool(catched_val_bools->values[i]);
+                    if (prev)
+                    {
+                        if (DatumGetBool(expr_val_bools->values[i]))
+                        {
+                            catched_val_bools->values[i] = true;
+                            all_false = false;
+                        } else
+                        {
+                            catched_val_bools->values[i] = false;
+                        }
+                    }
 				}
 
 				*op->boolvalue = PointerGetDatum(catched_val_bools);
