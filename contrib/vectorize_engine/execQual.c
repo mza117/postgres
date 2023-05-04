@@ -64,6 +64,12 @@ VExecScanQual(ExprState *state, ExprContext *econtext)
 	TupleTableSlot  *slot;
 	VectorTupleSlot *vslot;
 	vbool           *expr_val_bools;
+    int             available_row;
+    int             idx;
+    vtype *column;
+
+    available_row = 0;
+    idx = 0;
 
 	state->is_vector = true;
 
@@ -83,10 +89,16 @@ VExecScanQual(ExprState *state, ExprContext *econtext)
 
 	for (row = 0; row < BATCHSIZE; ++row)
 	{
-		if((!expr_val_bools->isnull[row]) &&
-			!DatumGetBool(expr_val_bools->values[row]) &&
-			!vslot->skip[row])
-			vslot->skip[row] = true;
+        if (DatumGetBool(expr_val_bools->values[row]))
+        {
+            for (idx = 0; idx < vslot->tts.tts_nvalid; idx ++)
+            {
+                column = (vtype*) DatumGetPointer(vslot->tts.tts_values[idx]);
+                column->values[available_row] = column->values[row];
+            }
+            vslot->skip[available_row] = false;
+            available_row ++;
+        }
 	}
 
 	state->boolvalue = 0;
@@ -94,11 +106,13 @@ VExecScanQual(ExprState *state, ExprContext *econtext)
 	/* EEOP_QUAL should never return NULL */
 	Assert(!isnull);
 
-	for(row = 0; row < BATCHSIZE; row++)
-	{
-		if (!vslot->skip[row])
-			return true;
-	}
+    if (available_row > 0) {
+        for (row = available_row; row < BATCHSIZE; row ++)
+        {
+            vslot->skip[row] = true;
+        }
+        return true;
+    }
 
 	return false;
 }

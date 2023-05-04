@@ -100,7 +100,7 @@ vint4_sum(PG_FUNCTION_ARGS)
 		for (i = 0; i < BATCHSIZE; i++)
 		{
 			if (batch->skipref[i])
-				continue;
+				break;
 
 			singleData->perGroup->transValue += DatumGetInt32(batch->values[i]);
 		}
@@ -116,7 +116,7 @@ vint4_sum(PG_FUNCTION_ARGS)
 		for (i = 0; i < BATCHSIZE; i++)
 		{
 			if (batch->skipref[i])
-				continue;
+				break;
 
 			vectorData->perGroupVector[i]->transValue += DatumGetInt32(batch->values[i]);
 		}
@@ -156,7 +156,7 @@ Datum vint8inc(PG_FUNCTION_ARGS)
         for (i = 0; i < BATCHSIZE; i++)
         {
             if (batch->skipref[i])
-                continue;
+                break;
 
             singleData->perGroup->transValue += 1;
         }
@@ -172,7 +172,7 @@ Datum vint8inc(PG_FUNCTION_ARGS)
         for (i = 0; i < BATCHSIZE; i++)
         {
             if (batch->skipref[i])
-                continue;
+                break;
 
             vectorData->perGroupVector[i]->transValue += 1;
         }
